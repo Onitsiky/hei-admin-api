@@ -68,7 +68,7 @@ public class CourseIT {
     course.setId(COURSE2_ID);
     course.setCode("WEB1");
     course.setName(null);
-    course.setCredits(2);
+    course.setCredits(5);
     course.setTotalHours(36);
     course.setMainTeacher(teacher1());
     return course;
@@ -177,8 +177,6 @@ public class CourseIT {
 
     assertEquals(3, actualNoFilter.size());
     assertEquals(3, actualOrderedByCredit.size());
-    assertEquals(3, actualOrderedByCode.size());assertEquals(3, actualNoFilter.size());
-    assertEquals(3, actualOrderedByCredit.size());
     assertEquals(3, actualOrderedByCode.size());
     assertEquals(3, actualOrderedByCreditAndCode.size());
     assertTrue(actualNoFilter.containsAll(List.of(course1(), course2(), course3())));
@@ -187,15 +185,8 @@ public class CourseIT {
     assertEquals("PROG1", actualOrderedByCode.get(1).getCode());
     assertEquals("WEB1", actualOrderedByCreditAndCode.get(0).getCode());
     assertTrue(actualOrderedByCreditAndCode.get(0).getCredits() > actualOrderedByCreditAndCode.get(1).getCredits());
-
-    assertEquals(3, actualOrderedByCreditAndCode.size());
-    assertTrue(actualNoFilter.containsAll(List.of(course1(), course2(), course3())));
-    assertTrue(actualOrderedByCredit.get(0).getCredits() < actualOrderedByCredit.get(1).getCredits());
-    assertEquals("MGT1", actualOrderedByCode.get(0).getCode());
-    assertEquals("PROG1", actualOrderedByCode.get(1).getCode());
     assertEquals("WEB1", actualOrderedByCreditAndCode.get(0).getCode());
-    assertTrue(actualOrderedByCreditAndCode.get(0).getCredits() > actualOrderedByCreditAndCode.get(1).getCredits());
-
+    assertEquals("PROG1", actualOrderedByCreditAndCode.get(1).getCode());
   }
   @Test
   void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
