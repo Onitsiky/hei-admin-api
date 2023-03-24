@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
+import static school.hei.haapi.integration.TeacherIT.teacher3;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
@@ -143,7 +144,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(teacher1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null,1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -156,7 +157,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(manager1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -164,12 +165,37 @@ public class CourseIT {
   }
 
   @Test
+  void manager_read_filtered_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    List<Course> actualFilteredByTeacherFirstName = api.getCourses("tWo", null, null, null);
+    List<Course> actualFilteredByTeacherLastName = api.getCourses(null, "Teacher", null, null);
+    List<Course> actualFilteredByTeacherFirstNameContaining = api.getCourses("O", null, null, null);
+    List<Course> actualFilteredByTeacherLastNameContaining = api.getCourses(null, "eAc", null,
+        null);
+    List<Course> actualFilteredByTeacherFirstAndLastName = api.getCourses("tHrEe", "teaCH", null,
+        null);
+
+    assertEquals(1, actualFilteredByTeacherFirstName.size());
+    assertEquals(2, actualFilteredByTeacherLastName.size());
+    assertEquals(2, actualFilteredByTeacherFirstNameContaining.size());
+    assertEquals(3, actualFilteredByTeacherLastNameContaining.size());
+    assertEquals(1, actualFilteredByTeacherFirstAndLastName.size());
+    assertTrue(actualFilteredByTeacherFirstName.contains(teacher2()));
+    assertTrue(actualFilteredByTeacherLastName.containsAll(List.of(teacher1(), teacher2())));
+    assertTrue(actualFilteredByTeacherFirstNameContaining.containsAll(List.of(teacher1(), teacher2())));
+    assertTrue(actualFilteredByTeacherLastNameContaining.containsAll(List.of(teacher1(),
+        teacher2(), teacher3())));
+    assertTrue(actualFilteredByTeacherFirstAndLastName.contains(teacher3()));
+  }
+  @Test
   void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(studentClient);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
