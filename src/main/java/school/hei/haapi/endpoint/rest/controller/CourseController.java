@@ -5,6 +5,12 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.OrderDirection;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,13 +33,14 @@ public class CourseController {
       @RequestParam(value = "code", required = false, defaultValue = "") String code,
       @RequestParam(value = "name", required = false, defaultValue = "") String name,
       @RequestParam(value = "credits", required = false) Integer credits,
-      @RequestParam(name = "teacher_first_name", required = false) String teacherFisrtName,
+      @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
       @RequestParam(name = "teacher_last_name", required = false) String teacherLastName,
+      @RequestParam(name = "creditsOrder", required = false) OrderDirection creditsOrder,
+      @RequestParam(name = "codeOrder", required = false) OrderDirection codeOrder,
       @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
-      @RequestParam(name = "page_size", required = false, defaultValue = "15")
-      BoundedPageSize pageSize
-  ) {
-    return service.getAllCourses(code,name, credits,teacherFisrtName, teacherLastName, page, pageSize).stream()
+      @RequestParam(name = "page_size", required = false, defaultValue = "15") BoundedPageSize pageSize
+  ){
+    return service.getAllCourses(code,name, credits, teacherFirstName, teacherLastName,creditsOrder, codeOrder,page, pageSize).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }

@@ -27,9 +27,10 @@ public class CourseManagerDao {
     Root<Course> root = query.from(Course.class);
     Join<Course, User> join = root.join("mainTeacher");
     List<Predicate> predicates = new ArrayList<>();
-
+    
     Predicate[] predicatesArray = retrieveNotNullPredicates(code, name, credits, teacherFirstName, teacherLastName,
-        root, builder, join, predicates);
+        builder, join, predicates);
+
     query
         .where(builder.and(predicates.toArray(predicatesArray)))
         .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
@@ -41,9 +42,10 @@ public class CourseManagerDao {
   }
 
   public Predicate[] retrieveNotNullPredicates(
-      String code, String name, Integer credits, String teacherFirstName, String teacherLastName, Root<Course> root, CriteriaBuilder builder, Join<Course,
+      String code, String name, Integer credits, String teacherFirstName, String teacherLastName, CriteriaBuilder builder, Join<Course,
       User> join, List<Predicate> predicates
   ) {
+
     if (code != null) {
       predicates.add(builder.or(
           builder.like(root.get("code"), "%" + code + "%"),

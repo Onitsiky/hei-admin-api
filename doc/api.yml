@@ -209,7 +209,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -407,6 +409,17 @@ paths:
           schema:
             type: string
           required: false
+        - name: creditsOrder
+          in: query
+          description: Order courses by their credits
+          schema:
+            $ref: '#/components/schemas/OrderDirection'
+          required: false
+        - name: codeOrder
+          in: query
+          description: Order courses by code
+          schema:
+            $ref: '#/components/schemas/OrderDirection'
         - name: page
           in: query
           schema:
@@ -1195,6 +1208,11 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    OrderDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
 
     Exception:
       type: object
