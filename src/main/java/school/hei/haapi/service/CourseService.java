@@ -9,15 +9,18 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.dao.CourseManagerDao;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
   private final CourseRepository repository;
+  private final CourseManagerDao courseManagerDao;
 
-  public List<Course> getAllCourses(PageFromOne page, BoundedPageSize pageSize) {
+  public List<Course> getAllCourses(String teacherFirstName, String teacherLastName,
+                                    PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return repository.findAll(pageable).getContent();
+    return courseManagerDao.findCoursesByCriteria(teacherFirstName, teacherLastName, pageable);
   }
 
   public Course getCourseById(String courseId) {

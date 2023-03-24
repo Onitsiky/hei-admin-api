@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
+import static school.hei.haapi.integration.TeacherIT.teacher3;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
@@ -18,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,6 +42,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 public class CourseIT {
   @MockBean
   private SentryConf sentryConf;
@@ -69,7 +72,7 @@ public class CourseIT {
     course.setName(null);
     course.setCredits(2);
     course.setTotalHours(36);
-    course.setMainTeacher(teacher1());
+    course.setMainTeacher(teacher3());
     return course;
   }
   public static Course course3(){
@@ -143,7 +146,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(teacher1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null,1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -156,7 +159,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(manager1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -164,12 +167,38 @@ public class CourseIT {
   }
 
   @Test
+  void manager_read_filtered_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    List<Course> actualFilteredByTeacherFirstName = api.getCourses("tWo", null, null, null);
+    List<Course> actualFilteredByTeacherLastName = api.getCourses(null, "Teacher", null, null);
+    List<Course> actualFilteredByTeacherFirstNameContaining = api.getCourses("O", null, null, null);
+    List<Course> actualFilteredByTeacherLastNameContaining = api.getCourses(null, "eAc", null,
+        null);
+    List<Course> actualFilteredByTeacherFirstAndLastName = api.getCourses("oNE", "teaCHeR", null,
+        null);
+
+    log.info(actualFilteredByTeacherLastNameContaining.toString());
+    assertEquals(1, actualFilteredByTeacherFirstName.size());
+    assertEquals(2, actualFilteredByTeacherLastName.size());
+    assertEquals(2, actualFilteredByTeacherFirstNameContaining.size());
+    assertEquals(3, actualFilteredByTeacherLastNameContaining.size());
+    assertEquals(1, actualFilteredByTeacherFirstAndLastName.size());
+    assertTrue(actualFilteredByTeacherFirstName.contains(course3()));
+    assertTrue(actualFilteredByTeacherLastName.containsAll(List.of(course1(), course3())));
+    assertTrue(actualFilteredByTeacherFirstNameContaining.containsAll(List.of(course1(), course3())));
+    assertTrue(actualFilteredByTeacherLastNameContaining.containsAll(List.of(course1(),
+        course2(), course3())));
+    assertTrue(actualFilteredByTeacherFirstAndLastName.contains(course1()));
+  }
+  @Test
   void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(studentClient);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
