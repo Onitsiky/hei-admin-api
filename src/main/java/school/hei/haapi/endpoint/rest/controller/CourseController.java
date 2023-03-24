@@ -24,13 +24,16 @@ public class CourseController {
 
   @GetMapping(value = "/courses")
   public List<Course> getCourses(
+      @RequestParam(value = "code", required = false, defaultValue = "") String code,
+      @RequestParam(value = "name", required = false, defaultValue = "") String name,
+      @RequestParam(value = "credits", required = false) Integer credits,
       @RequestParam(name = "teacher_first_name", required = false) String teacherFisrtName,
       @RequestParam(name = "teacher_last_name", required = false) String teacherLastName,
       @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", required = false, defaultValue = "15")
       BoundedPageSize pageSize
   ) {
-    return service.getAllCourses(teacherFisrtName, teacherLastName, page, pageSize).stream()
+    return service.getAllCourses(code,name, credits,teacherFisrtName, teacherLastName, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }

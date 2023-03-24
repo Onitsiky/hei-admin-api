@@ -17,10 +17,10 @@ public class CourseService {
   private final CourseRepository repository;
   private final CourseManagerDao courseManagerDao;
 
-  public List<Course> getAllCourses(String teacherFirstName, String teacherLastName,
+  public List<Course> getAllCourses(String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
                                     PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return courseManagerDao.findCoursesByCriteria(teacherFirstName, teacherLastName, pageable);
+    return courseManagerDao.findCoursesByCriteria(code, name, credits,teacherFirstName, teacherLastName, pageable);
   }
 
   public Course getCourseById(String courseId) {
