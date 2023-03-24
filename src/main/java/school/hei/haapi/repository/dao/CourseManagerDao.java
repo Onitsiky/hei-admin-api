@@ -32,7 +32,7 @@ public class CourseManagerDao {
         builder, join, predicates);
     query
         .where(builder.and(predicates.toArray(predicatesArray)))
-        .orderBy(QueryUtils.toOrders(pageable.getSort(), join, builder));
+        .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
     return entityManager.createQuery(query)
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
@@ -47,13 +47,13 @@ public class CourseManagerDao {
     if (teacherFirstName != null) {
       predicates.add(builder.or(
           builder.like(join.get("firstName"), "%" + teacherFirstName + "%"),
-          builder.like(builder.lower(join.get("firstName")), "%" + teacherFirstName + "%")
+          builder.like(builder.lower(join.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%")
       ));
     }
     if (teacherLastName != null) {
       predicates.add(builder.or(
           builder.like(join.get("lastName"), "%" + teacherLastName + "%"),
-          builder.like(builder.lower(join.get("lastName")), "%" + teacherLastName + "%")
+          builder.like(builder.lower(join.get("lastName")), "%" + teacherLastName.toLowerCase() + "%")
       ));
     }
     return new Predicate[predicates.size()];

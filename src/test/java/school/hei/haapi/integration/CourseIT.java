@@ -19,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,6 +42,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 public class CourseIT {
   @MockBean
   private SentryConf sentryConf;
@@ -70,7 +72,7 @@ public class CourseIT {
     course.setName(null);
     course.setCredits(2);
     course.setTotalHours(36);
-    course.setMainTeacher(teacher1());
+    course.setMainTeacher(teacher3());
     return course;
   }
   public static Course course3(){
@@ -174,20 +176,21 @@ public class CourseIT {
     List<Course> actualFilteredByTeacherFirstNameContaining = api.getCourses("O", null, null, null);
     List<Course> actualFilteredByTeacherLastNameContaining = api.getCourses(null, "eAc", null,
         null);
-    List<Course> actualFilteredByTeacherFirstAndLastName = api.getCourses("tHrEe", "teaCH", null,
+    List<Course> actualFilteredByTeacherFirstAndLastName = api.getCourses("oNE", "teaCHeR", null,
         null);
 
+    log.info(actualFilteredByTeacherLastNameContaining.toString());
     assertEquals(1, actualFilteredByTeacherFirstName.size());
     assertEquals(2, actualFilteredByTeacherLastName.size());
     assertEquals(2, actualFilteredByTeacherFirstNameContaining.size());
     assertEquals(3, actualFilteredByTeacherLastNameContaining.size());
     assertEquals(1, actualFilteredByTeacherFirstAndLastName.size());
-    assertTrue(actualFilteredByTeacherFirstName.contains(teacher2()));
-    assertTrue(actualFilteredByTeacherLastName.containsAll(List.of(teacher1(), teacher2())));
-    assertTrue(actualFilteredByTeacherFirstNameContaining.containsAll(List.of(teacher1(), teacher2())));
-    assertTrue(actualFilteredByTeacherLastNameContaining.containsAll(List.of(teacher1(),
-        teacher2(), teacher3())));
-    assertTrue(actualFilteredByTeacherFirstAndLastName.contains(teacher3()));
+    assertTrue(actualFilteredByTeacherFirstName.contains(course3()));
+    assertTrue(actualFilteredByTeacherLastName.containsAll(List.of(course1(), course3())));
+    assertTrue(actualFilteredByTeacherFirstNameContaining.containsAll(List.of(course1(), course3())));
+    assertTrue(actualFilteredByTeacherLastNameContaining.containsAll(List.of(course1(),
+        course2(), course3())));
+    assertTrue(actualFilteredByTeacherFirstAndLastName.contains(course1()));
   }
   @Test
   void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
